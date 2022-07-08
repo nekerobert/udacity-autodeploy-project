@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs: 
+  slack: circleci/slack@4.10.1
+
 jobs:
   build-frontend:
     docker:
@@ -54,6 +57,9 @@ jobs:
             cd frontend
             npm install
             npm run test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   test-backend:
     docker:
@@ -72,6 +78,10 @@ jobs:
             cd backend
             npm install
             npm run test
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+
   scan-frontend:
     docker:
       # Docker image here
@@ -90,7 +100,17 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-  
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      # When there is a successful deployment, send a notification with a different template1.
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+          
   scan-backend:
     docker:
       # Docker image here
@@ -107,11 +127,21 @@ jobs:
           command: |
             cd backend
             npm install
-            npm update mkdirp --depth 6
-            npm install --save-dev webpack@5.73.0
             npm audit fix --audit-level=critical --force
+            npm audit fix --force
             npm audit --audit-level=critical
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      # When there is a successful deployment, send a notification with a different template1.
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
+          
 workflows:
   default:
     jobs:
