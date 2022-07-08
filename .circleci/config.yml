@@ -88,7 +88,6 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
   
   scan-backend:
@@ -107,9 +106,6 @@ jobs:
           command: |
             cd backend
             npm install
-            npm update mkdirp --depth 6
-            npm install --save-dev webpack@5.73.0
-            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
 
 workflows:
