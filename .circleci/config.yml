@@ -326,7 +326,7 @@ jobs:
   deploy-backend:
   # Select a Docker image that is compatible with Ansible.
     docker:
-      - image: cimg/python:3.10.4
+      - image: python:3.10-alpine3.16
     steps:
       - checkout
       # Add the SSH key fingerprints to the job.
