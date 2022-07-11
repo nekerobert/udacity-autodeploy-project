@@ -325,43 +325,87 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.10-alpine3.16
+      - image: cimg/python:3.10.4
     steps:
       - checkout
+      
       - add_ssh_keys:
-          fingerprints: ["11:0d:6d:45:c9:52:94:60:9e:00:89:f9:5f:68:b5:9f"] 
+          fingerprints: ["11:0d:6d:45:c9:52:94:60:9e:00:89:f9:5f:68:b5:9f"]
+      
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          keys: [backend-build]
+        
       - run:
-          name: Install dependencies
+          name: "Install dependencies"
           command: |
-            apk add --update ansible tar gzip curl nodejs npm openssh-client git
-            pip install awscli
-            aws --version
+            sudo apt-get update
+            sudo apt-get install awscli
+            sudo apt install python3-pip
+            pip3 --version
+            sudo python3 -m pip install ansible
+            sudo apt install rsync -y
+      
+      - run: 
+          name: "Install Nodejs"
+          command: |
+            sudo apt-get update
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash - 
+            sudo apt-get install -y nodejs
+            node --version
+            npm --version   
       - run:
-          name: Deploy backend
-          command: |     
+          name: "Deploy backend"
+          command: |
             cd backend
             npm i
             npm run build
-            cd ..
-            # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
-            pwd
-            mkdir .circleci/ansible/roles/deploy/files/
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
-            ls -lh                            
-            cd .circleci/ansible
+            cd ../.circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt   
+            cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  # deploy-backend:
+  #   docker:
+  #     - image: python:3.10-alpine3.16
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["11:0d:6d:45:c9:52:94:60:9e:00:89:f9:5f:68:b5:9f"] 
+  #     - attach_workspace:
+  #         at: ~/
+  #     - restore_cache:
+  #         keys: [backend-build]
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add --update ansible tar gzip curl nodejs npm openssh-client git
+  #           pip install awscli
+  #           aws --version
+  #     - run:
+  #         name: Deploy backend
+  #         command: |     
+  #           cd backend
+  #           npm i
+  #           npm run build
+  #           cd ..
+  #           # Zip the directory
+  #           tar -C backend -czvf artifact.tar.gz .
+  #           pwd
+  #           mkdir .circleci/ansible/roles/deploy/files/
+  #           mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
+  #           ls -lh                            
+  #           cd .circleci/ansible
+  #           echo "Contents  of the inventory.txt file is -------"
+  #           cat inventory.txt   
+  #           ansible-playbook -i inventory.txt deploy-backend.yml
+  #     - save_cache:
+  #         paths: [backend/node_modules]
+  #         key: backend-build
+  #     - destroy-environment:
+  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7} 
 
 
   smoke-test:
