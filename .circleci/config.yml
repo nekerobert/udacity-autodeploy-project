@@ -16,7 +16,7 @@ commands:
             aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
-          slack/notify: #send message to stack channel
+          slack/notify: #send message to stack channels
             channel: circleci-alerts
             mentions: '@EngineeringTeam'
             template: basic_fail_2
@@ -361,7 +361,7 @@ jobs:
       - run:
           name: Install tar utility
           command: |
-            yum install -y tar gzip
+            yum install -y tar gzip 
       - attach_workspace:
           at: ~/.circleci/ansible/inventory.txt
       - run:
