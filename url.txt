@@ -1,5 +1,8 @@
-[Project Github Repository]
+[URL01]
 https://github.com/nekerobert/udacity-autodeploy-project
 
-[Public url of the s3 bucket (a.k.a frontend)]
+[URL02]
 https://udapeople-6e09969.s3.amazonaws.com/index.html
+
+[URL03]
+http://d2r5skhk53n8me.cloudfront.net/#/employees
