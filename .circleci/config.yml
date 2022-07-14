@@ -16,7 +16,7 @@ commands:
             aws s3 rm "s3://udapeople-<< parameters.workflow_id >>" --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
-          slack/notify: #send message to stack channels
+          slack/notify: #send message to stack channels.
             channel: circleci-alerts
             mentions: '@EngineeringTeam'
             template: basic_fail_2
